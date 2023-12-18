@@ -9,43 +9,99 @@ namespace OrderManagementSystem.dao
 {
     public class OrderProcessor : IOrderManagementRepository
     {
-        // Implement the methods defined in the interface
+        private List<User> users = new List<User>();
+        private List<Product> products = new List<Product>();
+        private List<Order> orders = new List<Order>();
+        private int orderIdCounter = 1;
+
         public void CreateOrder(User user, List<Product> products)
         {
-            // Implement the logic to create an order or user if not present
-            Console.WriteLine("Creating Order...");
+           
+            CreateUserIfNotExists(user);
+
+            // Create an order and add it to the orders list
+            Order order = new Order
+            {
+                OrderId = orderIdCounter++,
+                User = user,
+                Products = products,
+                OrderDate = DateTime.Now
+            };
+
+            orders.Add(order);
+
+            Console.WriteLine("Order created successfully!");
         }
 
         public void CancelOrder(int userId, int orderId)
         {
-            // Implement the logic to cancel an order
-            Console.WriteLine("Canceling Order...");
+            
+            User user = users.Find(u => u.UserId == userId);
+            Order order = orders.Find(o => o.OrderId == orderId && o.User == user);
+
+            if (user != null && order != null)
+            {
+               
+                orders.Remove(order);
+                Console.WriteLine("Order canceled successfully!");
+            }
+            else
+            {
+                Console.WriteLine("User or order not found. Unable to cancel the order.");
+            }
         }
 
         public void CreateProduct(User adminUser, Product product)
         {
-            // Implement the logic to create a product
-            Console.WriteLine("Creating Product...");
+            
+            if (adminUser != null && adminUser.Role == "Admin")
+            {
+                
+                products.Add(product);
+                Console.WriteLine("Product created successfully!");
+            }
+            else
+            {
+                Console.WriteLine("Admin user not found. Unable to create the product.");
+            }
         }
 
         public void CreateUser(User user)
         {
-            // Implement the logic to create a user
-            Console.WriteLine("Creating User...");
+            
+            user.UserId = users.Count + 1;
+            users.Add(user);
+            Console.WriteLine("User created successfully!");
         }
 
         public List<Product> GetAllProducts()
         {
-            // Implement the logic to get all products
-            Console.WriteLine("Getting All Products...");
-            return new List<Product>(); // Replace with actual logic
+            
+            return products;
         }
 
         public List<Product> GetOrderByUser(User user)
         {
-            // Implement the logic to get orders by a specific user
-            Console.WriteLine($"Getting Orders for User: {user.Username}");
-            return new List<Product>(); // Replace with actual logic
+           
+            List<Product> userProducts = new List<Product>();
+            foreach (var order in orders)
+            {
+                if (order.User == user)
+                {
+                    userProducts.AddRange(order.Products);
+                }
+            }
+
+            return userProducts;
+        }
+
+        private void CreateUserIfNotExists(User user)
+        {
+           s
+            if (!users.Contains(user))
+            {
+                CreateUser(user);
+            }
         }
     }
 }
